@@ -3,11 +3,12 @@
 		<!-- @touchmove.stop 解决滑动冲突问题 -->
 		<swiper class="swiper-container" circular :duration="duration" :current="currentIndex" @change="swiperChangeEvent" @touchmove.stop>
 			<swiper-item v-for="(item, index) in renderList" :key="index">
-				<slot>
-					<scroll-view style="height: 100%;" scroll-y>
-						<view>{{item}}</view>
-					</scroll-view>
-				</slot>
+				<scroll-view style="height: 100%;" scroll-y>
+					
+					<!-- 定义作用域插槽，给使用插槽的组件进行数据传递 -->
+					<slot name="content" :item="item"></slot>
+					
+				</scroll-view>
 			</swiper-item>
 		</swiper>
 		<input type="text" v-show="false">
@@ -41,6 +42,16 @@
 			},
 		},
 		
+		data() {
+			return {
+				circular: true,
+				currentIndex: 0,
+				previousIndex: 0,
+				allDataList: [],
+				renderList: []
+			};
+		},
+		
 		watch: {
 			/**
 			 * 侦听 current 的改变
@@ -52,16 +63,6 @@
 					this.currentIndex = index % SWIPER_LENGTH
 				}
 			},
-		},
-
-		data() {
-			return {
-				circular: true,
-				currentIndex: 0,
-				previousIndex: 0,
-				allDataList: [],
-				renderList: []
-			};
 		},
 
 		methods: {
@@ -217,7 +218,6 @@
 
 		.swiper-container {
 			height: 100%;
-			background-color: lightblue;
 		}
 	}
 </style>

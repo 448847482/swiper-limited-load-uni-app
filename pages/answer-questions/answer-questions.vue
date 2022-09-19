@@ -12,6 +12,12 @@
 				:total="resultObj.total"
 				@transition="swiperTransitionEvent"
 				@change="swiperChangeEvent">
+				
+				<!-- 使用作用域插槽，并利用 scope 接收插槽传递的数据 -->
+				<template #content="scope">
+					<topic-info :topicInfo="scope.item" :topicCurrent="initCurrentIndex" :answerMode="1" :isAnalysis="false"></topic-info>
+				</template>
+				
 			</swiper-limit-load-uni-app>
 		</view>
 		
@@ -30,7 +36,8 @@
 		<popup :display="displayPopup" @tapMask="onClickMask">
 			<view class="answer-sheet-container">
 				<text class="answer-sheet-title">答题卡</text>
-
+				
+				<!-- 题号列表区域 -->
 				<scroll-view class="answer-sheet-scroll-view" scroll-y @touchmove.stop>
 					<view class="scroll-view-container">
 						<text class="scroll-view-item" v-for="(item, index) in questionList" :key="item.id"
@@ -39,6 +46,37 @@
 						</text>
 					</view>
 				</scroll-view>
+				
+				<!-- 答题面板底部描述区域 -->
+				<view class="answer-sheet-desc">
+					<view class="answer-sheet-desc-item-container">
+						<view class="answer-sheet-desc-item-mark correct"></view>
+						<text>正确</text>
+					</view>
+				
+					<view class="answer-sheet-desc-item-container">
+						<view class="answer-sheet-desc-item-mark wrong"></view>
+						<text>错误</text>
+					</view>
+				
+					<view class="answer-sheet-desc-item-container">
+						<view class="answer-sheet-desc-item-mark"></view>
+						<text>未选</text>
+					</view>
+				
+					<view class="answer-sheet-desc-item-container">
+						<view class="answer-sheet-desc-item-mark current"></view>
+						<text>当前</text>
+					</view>
+				
+					<view class="answer-sheet-desc-item-container">
+						<i class="iconfont icon-mark-icon iconfont-item mark"></i>
+						<text>标记</text>
+					</view>
+				</view>
+				
+				<!-- 提交答案区域 -->
+				<button class="submit-btn" type="primary" @click="onClickSubmit">提交答案</button>
 				
 			</view>
 		</popup>
@@ -49,6 +87,7 @@
 <script>
 	import navBar from '../../components/nav-bar/nav-bar.vue'
 	import swiperLimitedLoadUniApp from '../../components/swiper-limit-load-uni-app/swiper-limit-load-uni-app.vue'
+	import topicInfo from '../../components/topic-info/topic-info.vue'
 	import popup from '../../components/popup/popup.vue'
 
 	// 导入请求方法
@@ -94,8 +133,14 @@
 			 * 点击左上角返回图标方法
 			 */
 			onClickBack() {
-				uni.redirectTo({
-					url: '/pages/index/index'
+				uni.showModal({
+					content: "是否确定要退出训练",
+					success: (res) => {
+						if (res.cancel) return
+						uni.redirectTo({
+							url: '/pages/index/index'
+						})
+					}
 				})
 			},
 			
@@ -151,6 +196,13 @@
 
 				// 在 DOM 更新循环后将 swiperDuration 过渡时长更改会原来的值
 				this.$nextTick(() => this.swiperDuration = 250)
+			},
+			
+			/**
+			 * 点击提交答案方法
+			 */
+			onClickSubmit() {
+				console.log(this.questionList);
 			},
 
 		},
@@ -223,6 +275,30 @@
 				}
 			}
 
+			/* 答题面板底部描述区域样式 */
+			.answer-sheet-desc {
+				display: flex;
+				align-items: center;
+				justify-content: space-around;
+				width: 100%;
+				height: 80rpx;
+			
+				.answer-sheet-desc-item-container {
+					display: flex;
+					align-items: center;
+					font-size: 28rpx;
+					line-height: 28rpx;
+			
+					.answer-sheet-desc-item-mark {
+						width: 28rpx;
+						height: 28rpx;
+						border: 1px solid #bdc3c7;
+						margin-right: 10rpx;
+						border-radius: 100%;
+					}
+				}
+			}
+			
 			/* 提交答案区域样式 */
 			.submit-btn {
 				width: 90%;
@@ -231,6 +307,7 @@
 				font-size: 32rpx;
 				line-height: 32rpx;
 			}
+			
 		}
 	}
 </style>

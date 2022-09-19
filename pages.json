@@ -6,8 +6,9 @@
 		{
 			"path": "pages/answer-questions/answer-questions",
 			"style": {
-				"disableScroll": true,
-				"navigationStyle": "custom"
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom",
+				"disableScroll": true
 			}
 		}
 	],
