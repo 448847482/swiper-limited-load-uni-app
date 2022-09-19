@@ -1,0 +1,16 @@
+{
+  "id": "3654782",
+  "name": "Demo",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "7450662",
+      "name": "左箭头",
+      "font_class": "back",
+      "unicode": "e669",
+      "unicode_decimal": 58985
+    }
+  ]
+}
