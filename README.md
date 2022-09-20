@@ -13,7 +13,7 @@
 在自己做一个 H5 的答题程序时，发现使用 swiper 实现左右滑动时，swiper-item 过多的情况，会导致程序卡顿，用户体验十分难受，所以在网上冲浪的时候，看到了 pengboboer 大佬，在微信开放社区写的关于微信小程序 swiper 优化文章，但是只是针对于微信小程序原生开发的，看到评论区蛮多人想要 uni-app 版本的，所以突发奇想（也顺便解决自己的问题）尝试性的开始编写 swiper-limited-load-uni-app 组件  
 
 #### 示例
-![输入图片说明](swiper.gif)
+![输入图片说明](https://gitee.com/mwbdtth/swiper-limited-load-uni-app/raw/main/swiper.gif)
 
 #### 使用说明
 
