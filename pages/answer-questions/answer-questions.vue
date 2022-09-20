@@ -15,7 +15,7 @@
 				
 				<!-- 使用作用域插槽，并利用 scope 接收插槽传递的数据 -->
 				<template #content="scope">
-					<topic-info :topicInfo="scope.item" :topicCurrent="initCurrentIndex" :answerMode="1" :isAnalysis="false"></topic-info>
+					<topic-info :topicInfo="scope.item" :answerMode="1" :isAnalysis="false" @selected="postSelectCallBack"></topic-info>
 				</template>
 				
 			</swiper-limit-load-uni-app>
@@ -24,25 +24,27 @@
 		<view class="button-container">
 			
 			<!-- 如果当前到达第一题则禁用上一题按钮 -->
-			<button :disabled="initCurrentIndex === 0" @tap="onClickPrevious">上一题</button>
+			<button :disabled="initCurrentIndex === 0" @click="onClickPrevious">上一题</button>
 			
-			<button @tap="onClickAnswerSheet">答题卡</button>
+			<button @click="onClickAnswerSheet">答题卡</button>
 			
 			<!-- 如果当前到达最后一题则禁用下一题按钮 -->
-			<button :disabled="initCurrentIndex === resultObj.total - 1" @tap="onClickNext">下一题</button>
+			<button :disabled="initCurrentIndex === resultObj.total - 1" @click="onClickNext">下一题</button>
 		</view>
 
 		<!-- 答题卡弹出层区域 -->
-		<popup :display="displayPopup" @tapMask="onClickMask">
+		<popup :display="displayPopup" @clickMask="onClickMask">
 			<view class="answer-sheet-container">
 				<text class="answer-sheet-title">答题卡</text>
 				
 				<!-- 题号列表区域 -->
 				<scroll-view class="answer-sheet-scroll-view" scroll-y @touchmove.stop>
 					<view class="scroll-view-container">
-						<text class="scroll-view-item" v-for="(item, index) in questionList" :key="item.id"
-							:data-tindex="index" @tap="onClickQuestionNumber">
+						<text class="scroll-view-item" :class="index | stateStyle(initCurrentIndex, questionList)"
+							v-for="(item, index) in questionList" :key="item.id" :data-tindex="index"
+							@tap="onClickQuestionNumber">
 							{{index + 1}}
+							<i v-if="questionList[index].isMark" class="iconfont icon-mark-icon iconfont-item"></i>
 						</text>
 					</view>
 				</scroll-view>
@@ -76,7 +78,7 @@
 				</view>
 				
 				<!-- 提交答案区域 -->
-				<button class="submit-btn" type="primary" @click="onClickSubmit">提交答案</button>
+				<button class="submit-btn" type="primary" @tap="onClickSubmit">提交答案</button>
 				
 			</view>
 		</popup>
@@ -91,9 +93,7 @@
 	import popup from '../../components/popup/popup.vue'
 
 	// 导入请求方法
-	import {
-		getTrainTopicInitData
-	} from '../../api/train-topic.js'
+	import { getTrainTopicInitData } from '../../api/train-topic.js'
 
 	export default {
 		data() {
@@ -113,7 +113,7 @@
 				}
 			};
 		},
-
+		
 		/**
 		 * 初始化生命周期方法
 		 * @param {Object} options 路由参数
@@ -121,11 +121,32 @@
 		async onLoad(options) {
 			const topic = await getTrainTopicInitData()
 			this.questionList = topic.data.data
+			
 			this.resultObj.total = this.questionList.length
 
 			// 通过 ref 调用 swiper 组件中的 init 方法，进行数据的初始化
 			this.$refs.swiperRef.init(this.questionList, this.initCurrentIndex)
+			
+			// 设置导航栏题号信息
 			this.navTitle = `${this.initCurrentIndex + 1}/${this.resultObj.total}`
+		},
+		
+		filters: {
+			/**
+			 * 答题卡题号状态样式方法
+			 * @param {Number} index 传入当前项题号索引
+			 * @param {Array} topicIndex 传入题目索引
+			 * @param {Array} list 传入题目数组
+			 * @return {String} 返回匹配类型样式（当前/正确/错误）
+			 */
+			stateStyle: (index, topicIndex, list) => {
+				let state = ''
+				if (topicIndex === index) state = 'current'
+				
+				state = `${state} ${list[index].state || ''}`
+				
+				return state
+			},
 		},
 
 		methods: {
@@ -193,9 +214,12 @@
 				this.swiperDuration = 0
 				this.$refs.swiperRef.init(this.questionList, this.initCurrentIndex)
 				this.displayPopup = false
-
+				
+				// 设置导航栏题号信息
+				this.navTitle = `${this.initCurrentIndex + 1}/${this.resultObj.total}`
+				
 				// 在 DOM 更新循环后将 swiperDuration 过渡时长更改会原来的值
-				this.$nextTick(() => this.swiperDuration = 250)
+				this.$nextTick(() => this.swiperDuration = 200)
 			},
 			
 			/**
@@ -203,8 +227,39 @@
 			 */
 			onClickSubmit() {
 				console.log(this.questionList);
+				console.log(this.resultObj);
 			},
-
+			
+			/**
+			 * 题目选项选择后回调函数
+			 * @param {Object} state 
+			 */
+			postSelectCallBack(state) {
+				this.answerSubtotal(state)
+			},
+			
+			/**
+			 * 答题小计方法
+			 * @param {String} state 传入题是否正确状态
+			 */
+			answerSubtotal(state) {
+				const resultObj = this.resultObj
+			
+				// 计算正确题目与错误题目的数量，正确则对题数量 +1
+				if (state === 'correct') {
+					resultObj.correct++
+					this.onClickNext()
+				} else {
+					resultObj.wrong++
+				}
+			
+				// 计算未做题目数量
+				resultObj.notDone = resultObj.total - (resultObj.correct + resultObj.wrong)
+			
+				// 暂定：得分与正确题目数量保持一致
+				resultObj.score = resultObj.correct
+			},
+			
 		},
 
 	}
@@ -216,6 +271,7 @@
 		flex-direction: column;
 		width: 100vw;
 		height: 100vh;
+		overflow: hidden;
 
 		.content-container {
 			height: 100%;
@@ -251,7 +307,7 @@
 				flex-wrap: wrap;
 				align-content: flex-start;
 				width: 100%;
-				height: 600rpx;
+				height: 620rpx;
 				padding: 20rpx;
 
 				.scroll-view-item {

@@ -4,7 +4,7 @@
 		<view class="text-area">
 			<text class="title">{{title}}</text>
 		</view>
-		<button @tap="onClickAnswerQuestions">开始答题训练</button>
+		<button @click="onClickAnswerQuestions">开始答题训练</button>
 	</view>
 </template>
 

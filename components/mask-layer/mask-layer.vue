@@ -1,5 +1,5 @@
 <template>
-	<view v-if="displayMask" class="mask-container" :style="{zIndex: zIndex}" :class="{'display-mask': displayMask}" @tap="onClickMask"></view>
+	<view v-if="displayMask" class="mask-container" :style="{zIndex: zIndex}" :class="{'display-mask': displayMask}" @click="onClickMask"></view>
 </template>
 
 <script>
@@ -12,7 +12,7 @@
 			},
 			zIndex: {
 				type: Number,
-				default: -1
+				default: 1
 			}
 		},
 		
@@ -32,7 +32,7 @@
 
 		methods: {
 			onClickMask() {
-				this.$emit('tapMask')
+				this.$emit('clickMask')
 			}
 		}
 	}

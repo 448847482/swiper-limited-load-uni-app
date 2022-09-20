@@ -3,7 +3,7 @@
 		<view class="popup-content-container" :class="{'display-popup': displayPopup}">
 			<slot></slot>
 		</view>
-		<mask-layer v-if="displayMask" :display="displayPopup" @tapMask="onClickMask"></mask-layer>
+		<mask-layer v-if="displayMask" :display="displayPopup" @clickMask="onClickMask"></mask-layer>
 	</view>
 </template>
 
@@ -46,7 +46,7 @@
 			 * 点击弹出层遮罩方法
 			 */
 			onClickMask() {
-				this.$emit('tapMask')
+				this.$emit('clickMask')
 			}
 		}
 	}
@@ -61,6 +61,7 @@
 		.popup-content-container {
 			position: fixed;
 			bottom: -70%;
+			z-index: 2;
 			width: 100%;
 			background-color: #fff;
 			border-top-left-radius: 20rpx;

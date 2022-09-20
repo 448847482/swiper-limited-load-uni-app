@@ -84,18 +84,18 @@
 			 */
 			initSwiperList(allDataList, contentIndex) {
 				const renderList = []
-
+				
 				// 使用 SWIPER_LENGTH 长度对 contentIndex 进行取余，获取当前可视索引（0~2）
 				// 用于保证 swiper-item 能对应上 SWIPER_LENGTH 长度（因为设置了 SWIPER_LENGTH = 3）
 				const visibleIndex = contentIndex % SWIPER_LENGTH
 
 				// 设置当前可视区 swiper-item 显示为指定内容
 				renderList[visibleIndex] = allDataList[contentIndex]
-
+				
 				// 设置剩余 swiper-item 的内容，保证其为指定内容方向上的相邻内容
 				renderList[this.getLastVisibleIndex(visibleIndex)] = this.getLastRenderItem(allDataList, contentIndex)
 				renderList[this.getNextVisibleIndex(visibleIndex)] = this.getNextRenderItem(allDataList, contentIndex)
-
+				
 				return renderList
 			},
 
@@ -159,7 +159,7 @@
 
 				// swiper 切换时，重新设置 currentIndex，主要目的是使其与之后设置的值不相等
 				// 防止之后动态改变，swiper 组件中 current 属性时，值相同时导致的 current 属性设置不生效问题
-				this.currentIndex = contentIndex
+				this.currentIndex = visibleIndex
 				
 				// 是否正向相邻，他们差值为 1，true 证明是两个 swiper-item 相邻切换
 				const isForwardAdjacent = swiperCurrent - previousIndex === 1

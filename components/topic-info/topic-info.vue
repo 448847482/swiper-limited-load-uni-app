@@ -1,7 +1,7 @@
 <template>
 	<!-- 判断传入的题目对象是否存在，不存在这不进行渲染 -->
 	<view v-if="!!topicInfoObj" class="topic-info-container">
-
+		
 		<!-- 题目区域 -->
 		<view class="topic-container">
 			<text>
@@ -9,7 +9,7 @@
 				{{topicInfoObj.content}}
 			</text>
 		</view>
-
+		
 		<!-- 选项区域 -->
 		<view class="options-container">
 			<button class="options-item" :class="optionItem.style"
@@ -20,13 +20,13 @@
 				<text class="options-content">{{optionItem.title}}</text>
 			</button>
 		</view>
-
+		
 		<!-- 多选题点击确认区域，判断答题模式、题目类型、是否已经点击确认，满足则显示确认按钮 -->
-		<button v-if="answerMode && topicInfoObj.questionCategory === 1 && !topicInfoObj.confirm" class="confirm-btn"
+		<button v-if="topicInfoObj.questionCategory === 1 && !topicInfoObj.confirm" class="confirm-btn"
 			type="primary" @click="onClickConfirm">确认</button>
-
+		
 		<!-- 结果区域 -->
-		<view class="result-container" v-if="answerMode && topicInfoObj.confirm">
+		<view class="result-container" v-if="topicInfoObj.confirm">
 			<view class="result-item-container">
 				<text class="result-item-title">你的答案</text>
 				<text class="result-item-option"
@@ -37,9 +37,9 @@
 				<text class="result-item-option">{{topicInfoObj.correctAnswer}}</text>
 			</view>
 		</view>
-
+		
 		<!-- 解析区域 -->
-		<view class="parse-contaienr" v-if="answerMode && topicInfoObj.confirm">
+		<view class="parse-contaienr" v-if="topicInfoObj.confirm">
 			<text>
 				<em class="parse-icon">解析</em>
 				{{topicInfoObj.analysis | nullHandling}}
@@ -61,25 +61,12 @@
 				type: Object,
 				default: {}
 			},
-			// 是否为显示解析模式
-			isAnalysis: {
-				type: Boolean,
-				default: false
-			},
-			// 答题模式：考试模式(exam): 0 | 训练(train): 1
-			answerMode: {
-				type: Number,
-				default: 1
-			},
-			topicNumber: {
-				type: Number,
-				default: 0
-			},
 		},
 
 		data() {
 			return {
 				topicInfoObj: this.topicInfo,
+				// 生成 26 个字母
 				optionsMarkList: [...Array(26).keys()].map(i => String.fromCharCode(i + 65)),
 			};
 		},
@@ -155,35 +142,33 @@
 					currentOptionIndex,
 					optionsMarkList
 				})
+
+				// 是单选题时直接调用多选题点击确认方法，显示正确答案信息
+				if (topicCategory !== 1) return this.onClickConfirm()
 			
-				// 在单选题时调用答案结果处理方法，显示正确答案信息
-				if (this.answerMode && topicCategory !== 1) answeringQuestions.answerResultHandle({
-					topicInfoObj,
-					optionsList,
-					optionsMarkList,
-					// callback: (state) => this.answerSubtotal(state)
-				})
-			
-				// 强制更新页面
+				// 重新渲染页面
 				this.$forceUpdate()
 			},
 			
 			/**
-			 * 所选题点击确认方法
+			 * 多选题点击确认方法
 			 */
 			onClickConfirm() {
 				const { topicInfoObj, optionsMarkList } = this
 				const optionsList = topicInfoObj.options
-			
-				// 在多选点击确认时调用答案结果处理方法，显示正确答案信息
+							
+				// 将当前 this 赋值给 that 用于在确认答案后的回调函数中，调用自定义事件
+				const that = this
+				
+				// 调用答案结果处理方法，显示正确答案信息
 				answeringQuestions.answerResultHandle({
 					topicInfoObj,
 					optionsList,
 					optionsMarkList,
-					// callback: (state) => this.answerSubtotal(state)
+					callback: state => that.$emit('selected', state)
 				})
 			
-				// 强制更新页面
+				// 重新渲染页面
 				this.$forceUpdate()
 			},
 		},

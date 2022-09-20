@@ -1,7 +1,7 @@
 <template>
 	<view class="nav-bar-container">
 		<slot>
-			<i class="back iconfont icon-back" @tap="onClickBack"></i>
+			<i class="back iconfont icon-back" @click="onClickBack"></i>
 		</slot>
 		<text>{{title}}</text>
 		<slot>

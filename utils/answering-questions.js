@@ -7,13 +7,7 @@ class AnsweringQuestions {
 	 * @param {Number} currentOptionIndex 传入当前点击的选项索引
 	 * @param {Array} optionsMarkList 传入选项标识数组
 	 */
-	optionHandle({
-		topicInfoObj,
-		topicCategory,
-		optionsList,
-		currentOptionIndex,
-		optionsMarkList
-	}) {
+	optionHandle({ topicInfoObj, topicCategory, optionsList, currentOptionIndex, optionsMarkList }) {
 		// 设置我的答案和正确答案初始值为 Set 集合，阻止元素重复记录
 		topicInfoObj.myAnswer = topicInfoObj?.myAnswer || new Set()
 		topicInfoObj.correctAnswer = topicInfoObj?.correctAnswer || new Set()
@@ -34,6 +28,7 @@ class AnsweringQuestions {
 				// 当选项都未选择则清除题状态样式，反之则设置选中样式
 				topicInfoObj.myAnswer.size ? topicInfoObj.state = 'checked' : topicInfoObj.state = ''
 				break;
+				
 			default:
 
 				// 单题选项点击设置 checked 点击样式，点击其他选项并取消上一个选项的 checked 点击样式，点击自身不做操作
@@ -60,13 +55,7 @@ class AnsweringQuestions {
 	 * @param {Boolean} isShowToast 传入是否显示提示信息
 	 * @param {Function} callback 传入以题状态作为参数的回调函数
 	 */
-	answerResultHandle({
-		topicInfoObj,
-		optionsList,
-		optionsMarkList,
-		isShowToast = true,
-		callback = (state) => {}
-	}) {
+	answerResultHandle({ topicInfoObj, optionsList, optionsMarkList, isShowToast = true, callback = (state) => {} }) {
 		// 针对多选题，判断用户是否选择，未选择则提示用户进行选择
 		if (isShowToast && !topicInfoObj?.myAnswer) return uni.showToast({
 			title: '请先做出选择',
@@ -105,7 +94,7 @@ class AnsweringQuestions {
 		// 设置用户已经点击了确认，用于显示正确答案和解析
 		topicInfoObj.confirm = true
 
-		// 调用统计方法
+		// 定义回调函数，给回调函数参数传递当前题目状态
 		callback(topicInfoObj.state)
 	}
 
