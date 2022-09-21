@@ -11,40 +11,32 @@ class AnsweringQuestions {
 		// 设置我的答案和正确答案初始值为 Set 集合，阻止元素重复记录
 		topicInfoObj.myAnswer = topicInfoObj?.myAnswer || new Set()
 		topicInfoObj.correctAnswer = topicInfoObj?.correctAnswer || new Set()
-
-		// 根据题类型，来匹配具体的属性注入策略
-		switch (topicCategory) {
-			case 1:
-
-				// 多选题选项点击设置 checked 点击样式，再次自身点击取消 checked 点击样式
-				if (topicInfoObj.myAnswer.has(optionsMarkList[currentOptionIndex])) {
-					optionsList[currentOptionIndex].style = ''
-					topicInfoObj.myAnswer.delete(optionsMarkList[currentOptionIndex])
-				} else {
-					optionsList[currentOptionIndex].style = 'checked'
-					topicInfoObj.myAnswer.add(optionsMarkList[currentOptionIndex])
-				}
-
-				// 当选项都未选择则清除题状态样式，反之则设置选中样式
-				topicInfoObj.myAnswer.size ? topicInfoObj.state = 'checked' : topicInfoObj.state = ''
-				break;
-				
-			default:
-
-				// 单题选项点击设置 checked 点击样式，点击其他选项并取消上一个选项的 checked 点击样式，点击自身不做操作
-				if (topicInfoObj.myAnswer.size) {
-					const oldIndex = optionsMarkList.indexOf([...topicInfoObj.myAnswer][0])
-					optionsList[oldIndex].style = ''
-					topicInfoObj.myAnswer.clear()
-				}
-
+		
+		if (topicCategory === 1) {
+			// 多选题选项点击设置 checked 点击样式，再次自身点击取消 checked 点击样式
+			if (topicInfoObj.myAnswer.has(optionsMarkList[currentOptionIndex])) {
+				optionsList[currentOptionIndex].style = ''
+				topicInfoObj.myAnswer.delete(optionsMarkList[currentOptionIndex])
+			} else {
 				optionsList[currentOptionIndex].style = 'checked'
 				topicInfoObj.myAnswer.add(optionsMarkList[currentOptionIndex])
-
-				// 设置题状态为选中
-				topicInfoObj.state = 'checked'
-				break;
+			}
+			
+			// 当选项都未选择则清除题状态样式，反之则设置选中样式
+			topicInfoObj.myAnswer.size ? topicInfoObj.state = 'checked' : topicInfoObj.state = ''
+			
+			return
 		}
+		
+		// 单题选项点击设置 checked 点击样式，点击其他选项并取消上一个选项的 checked 点击样式，点击自身不做操作
+		if (topicInfoObj.myAnswer.size) {
+			const oldIndex = optionsMarkList.indexOf([...topicInfoObj.myAnswer][0])
+			optionsList[oldIndex].style = ''
+			topicInfoObj.myAnswer.clear()
+		}
+		
+		optionsList[currentOptionIndex].style = 'checked'
+		topicInfoObj.myAnswer.add(optionsMarkList[currentOptionIndex])
 	}
 
 	/**
@@ -86,6 +78,10 @@ class AnsweringQuestions {
 				topicInfoObj.state = 'wrong'
 			}
 		})
+		
+		// 判断我的答案数量等于正确答案数量，不等于这说明用户答错了
+		const isCorrect = topicInfoObj.myAnswer.size !== topicInfoObj.correctAnswer.size
+		if (isCorrect) topicInfoObj.state = 'wrong'
 
 		// 调用将 Set 集合，转为 String 字符串方法
 		topicInfoObj.myAnswer = this.setToString(topicInfoObj.myAnswer)

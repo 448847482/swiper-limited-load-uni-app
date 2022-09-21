@@ -203,6 +203,10 @@
 				eventInfo.current = contentIndex
 				this.$emit("change", eventInfo)
 				this.previousIndex = swiperCurrent
+				
+				// 强制更新页面
+				// 防止外部控制内容变化后,再次滑动，出现后面内容未及时更新导致的临时闪现旧内容
+				this.$forceUpdate()
 			},
 
 		}
