@@ -6,8 +6,12 @@ class AnsweringQuestions {
 	 * @param {Array} optionsList 传入当前题目选项对象
 	 * @param {Number} currentOptionIndex 传入当前点击的选项索引
 	 * @param {Array} optionsMarkList 传入选项标识数组
+	 * @return {Array} 返回选项列表数据
 	 */
 	optionHandle({ topicInfoObj, topicCategory, optionsList, currentOptionIndex, optionsMarkList }) {
+		// 断开选项列表原型影响，用于后面返回选项列表，达到改变题对象属性方式，从而重新渲染页面
+		optionsList = this.deepCopy(optionsList)
+		
 		// 设置我的答案和正确答案初始值为 Set 集合，阻止元素重复记录
 		topicInfoObj.myAnswer = topicInfoObj?.myAnswer || new Set()
 		topicInfoObj.correctAnswer = topicInfoObj?.correctAnswer || new Set()
@@ -25,7 +29,7 @@ class AnsweringQuestions {
 			// 当选项都未选择则清除题状态样式，反之则设置选中样式
 			topicInfoObj.myAnswer.size ? topicInfoObj.state = 'checked' : topicInfoObj.state = ''
 			
-			return
+			return optionsList
 		}
 		
 		// 单题选项点击设置 checked 点击样式，点击其他选项并取消上一个选项的 checked 点击样式，点击自身不做操作
@@ -37,6 +41,9 @@ class AnsweringQuestions {
 		
 		optionsList[currentOptionIndex].style = 'checked'
 		topicInfoObj.myAnswer.add(optionsMarkList[currentOptionIndex])
+		topicInfoObj.state = 'checked'
+		
+		return optionsList
 	}
 
 	/**
@@ -44,7 +51,7 @@ class AnsweringQuestions {
 	 * @param {Object} topicInfoObj 传入当前题对象
 	 * @param {Array} optionsList 传入当前题选项对象
 	 * @param {Array} optionsMarkList 传入选项标识数组
-	 * @param {Boolean} isShowToast 传入是否显示提示信息
+	 * @param {Boolean} isShowToast 传入是否显示提示信息，默认为显示 Toast
 	 * @param {Function} callback 传入以题状态作为参数的回调函数
 	 */
 	answerResultHandle({ topicInfoObj, optionsList, optionsMarkList, isShowToast = true, callback = (state) => {} }) {
@@ -82,6 +89,9 @@ class AnsweringQuestions {
 		// 判断我的答案数量等于正确答案数量，不等于这说明用户答错了
 		const isCorrect = topicInfoObj.myAnswer.size !== topicInfoObj.correctAnswer.size
 		if (isCorrect) topicInfoObj.state = 'wrong'
+		
+		// 判断我的答案数量是否为 0，为 0 则说明用户未进行选择，将状态设置为空
+		if (topicInfoObj.myAnswer.size === 0) topicInfoObj.state = ''
 
 		// 调用将 Set 集合，转为 String 字符串方法
 		topicInfoObj.myAnswer = this.setToString(topicInfoObj.myAnswer)
@@ -103,6 +113,18 @@ class AnsweringQuestions {
 
 		return [...setObj].join('')
 	}
+	
+	/**
+	 * 简易版对象深拷贝方法
+	 * @param {Object} obj 传入一个对象
+	 * @description 仅能深拷贝一些普通的对象
+	 * @return {Object} 返回深拷贝后的对象
+	 */
+	deepCopy(obj) {
+
+		return JSON.parse(JSON.stringify(obj))
+	}
+	
 }
 
 

@@ -130,24 +130,23 @@
 			 */
 			onClickOption(e) {
 				const { topicInfoObj, optionsMarkList } = this
-				const topicCategory = topicInfoObj.questionCategory
-				const optionsList = topicInfoObj.options
 				const currentOptionIndex = e.currentTarget.dataset.oid
-			
+				const { questionCategory: topicCategory, options: optionsList } = topicInfoObj
+							
 				// 调用选项处理方法，用于注入选项属性与选中样式
-				answeringQuestions.optionHandle({
+				const options = answeringQuestions.optionHandle({
 					topicInfoObj,
 					topicCategory,
 					optionsList,
 					currentOptionIndex,
 					optionsMarkList
 				})
-
+				
+				// 更新题对象中的选项属性，以至于重新渲染页面
+				this.$set(this.topicInfoObj, 'options', options)
+				
 				// 是单选题时直接调用多选题点击确认方法，显示正确答案信息
 				if (topicCategory !== 1) return this.onClickConfirm()
-			
-				// 重新渲染页面
-				this.$forceUpdate()
 			},
 			
 			/**
@@ -167,9 +166,6 @@
 					optionsMarkList,
 					callback: state => that.$emit('selected', state)
 				})
-			
-				// 重新渲染页面
-				this.$forceUpdate()
 			},
 		},
 
