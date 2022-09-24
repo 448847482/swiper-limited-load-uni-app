@@ -1,7 +1,12 @@
 <template>
 	<view class="swiper-limit-load-container">
 		<!-- @touchmove.stop 解决滑动冲突问题 -->
-		<swiper class="swiper-container" circular :duration="duration" :current="currentIndex" @change="swiperChangeEvent" @touchmove.stop>
+		<swiper class="swiper-container" 
+			circular :duration="duration" 
+			:current="currentIndex" 
+			@change="swiperChangeEvent" 
+			@touchmove.stop
+		>
 			<swiper-item v-for="(item, index) in renderList" :key="index">
 				<scroll-view style="height: 100%;" scroll-y>
 					
@@ -10,6 +15,7 @@
 					
 				</scroll-view>
 			</swiper-item>
+			
 		</swiper>
 		<input type="text" v-show="false">
 	</view>
@@ -138,12 +144,12 @@
 				const nextContentIndex = contentIndex + 1
 				return nextContentIndex === this.total ? null : allDataList[nextContentIndex]
 			},
-
+			
 			/**
 			 * swiper 切换事件
 			 * @param {Object} e swiper 改变产生的事件对象
 			 */
-			swiperChangeEvent(e) {
+			swiperChangeEvent(e, externalCall) {
 				const { previousIndex, allDataList } = this
 				const swiperCurrent = e.detail.current
 				const currentItem = this.renderList[swiperCurrent]
@@ -177,7 +183,8 @@
 					}
 					
 					// 获取下一个要替换的 renderList 中的 item
-					this.renderList[this.getNextVisibleIndex(visibleIndex)] = this.getNextRenderItem(allDataList, contentIndex)
+					// 使用 vue 官方包装的 splice 方法进行数据的增加，从而实现对列表数据更新后，渲染页面
+					this.renderList.splice(this.getNextVisibleIndex(visibleIndex), 1, this.getNextRenderItem(allDataList, contentIndex))
 				}
 
 
@@ -197,16 +204,13 @@
 					}
 					
 					// 获取上一个要替换的 renderList 中的 item
-					this.renderList[this.getLastVisibleIndex(visibleIndex)] = this.getLastRenderItem(allDataList, contentIndex)
+					// 使用 vue 官方包装的 splice 方法进行数据的增加，从而实现对列表数据更新后，渲染页面
+					this.renderList.splice(this.getLastVisibleIndex(visibleIndex), 1, this.getLastRenderItem(allDataList, contentIndex))
 				}
 				
 				eventInfo.current = contentIndex
 				this.$emit("change", eventInfo)
-				this.previousIndex = swiperCurrent
-				
-				// 强制更新页面
-				// 防止外部控制内容变化后,再次滑动，出现后面内容未及时更新导致的临时闪现旧内容
-				this.$forceUpdate()
+				this.previousIndex = swiperCurrent				
 			},
 
 		}
